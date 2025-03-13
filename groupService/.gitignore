@@ -1,0 +1,15 @@
+# Group Service specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/
+
+# Group images and other data that might be stored locally during development
+/group-data/
+/group-uploads/ 

@@ -1,0 +1,316 @@
+{
+  "info": {
+    "name": "User Service Tests",
+    "description": "Tests for the User Service functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Management Tests",
+      "item": [
+        {
+          "name": "Create Admin User",
+          "request": {
+            "url": "http://localhost:8080/users",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "firstName": "Admin",
+              "lastName": "User",
+              "email": "admin@example.com",
+              "password": "adminPassword123",
+              "dateOfBirth": "1990-01-01",
+              "gender": "Male",
+              "phoneNumber": "+1234567890",
+              "location": "Admin City",
+              "isModerator": true
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "firstName": "Admin",
+              "lastName": "User",
+              "email": "admin@example.com",
+              "dateOfBirth": "1990-01-01",
+              "gender": "Male",
+              "phoneNumber": "+1234567890",
+              "location": "Admin City",
+              "isModerator": true,
+              "isBanned": false
+            }
+          }
+        },
+        {
+          "name": "Create Moderator User",
+          "request": {
+            "url": "http://localhost:8080/users",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "firstName": "Moderator",
+              "lastName": "User",
+              "email": "moderator@example.com",
+              "password": "moderatorPassword123",
+              "dateOfBirth": "1991-02-02",
+              "gender": "Female",
+              "phoneNumber": "+1987654321",
+              "location": "Moderator City",
+              "isModerator": true
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "firstName": "Moderator",
+              "lastName": "User",
+              "email": "moderator@example.com",
+              "dateOfBirth": "1991-02-02",
+              "gender": "Female",
+              "phoneNumber": "+1987654321",
+              "location": "Moderator City",
+              "isModerator": true,
+              "isBanned": false
+            }
+          }
+        },
+        {
+          "name": "Create Regular User",
+          "request": {
+            "url": "http://localhost:8080/users",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "password": "userPassword123",
+              "dateOfBirth": "1992-03-03",
+              "gender": "Male",
+              "phoneNumber": "+1122334455",
+              "location": "User City"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 3,
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "dateOfBirth": "1992-03-03",
+              "gender": "Male",
+              "phoneNumber": "+1122334455",
+              "location": "User City",
+              "isModerator": false,
+              "isBanned": false
+            }
+          }
+        },
+        {
+          "name": "Promote User to Moderator",
+          "request": {
+            "url": "http://localhost:8080/moderator/promote/3",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "1",
+              "Authorization": "Bearer {{admin_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 3,
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "isModerator": true,
+              "isBanned": false
+            }
+          }
+        },
+        {
+          "name": "Demote User from Moderator",
+          "request": {
+            "url": "http://localhost:8080/moderator/demote/3",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "1",
+              "Authorization": "Bearer {{admin_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 3,
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "isModerator": false,
+              "isBanned": false
+            }
+          }
+        },
+        {
+          "name": "Ban User",
+          "request": {
+            "url": "http://localhost:8080/moderator/ban",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "userId": 3,
+              "reason": "Repeatedly posting inappropriate content"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 3,
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "isModerator": false,
+              "isBanned": true,
+              "banReason": "Repeatedly posting inappropriate content",
+              "bannedAt": "2023-05-14T10:15:30",
+              "bannedById": 2
+            }
+          }
+        },
+        {
+          "name": "Get Banned User Info",
+          "request": {
+            "url": "http://localhost:8080/users/3",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{admin_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 3,
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "isModerator": false,
+              "isBanned": true,
+              "banReason": "Repeatedly posting inappropriate content",
+              "bannedAt": "2023-05-14T10:15:30",
+              "bannedById": 2
+            }
+          }
+        },
+        {
+          "name": "Check if User is Banned",
+          "request": {
+            "url": "http://localhost:8080/moderator/isBanned/3",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{admin_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": true
+          }
+        },
+        {
+          "name": "Unban User",
+          "request": {
+            "url": "http://localhost:8080/moderator/unban/3",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 3,
+              "firstName": "Regular",
+              "lastName": "User",
+              "email": "user@example.com",
+              "isModerator": false,
+              "isBanned": false,
+              "banReason": null,
+              "bannedAt": null,
+              "bannedById": null
+            }
+          }
+        },
+        {
+          "name": "Get All Moderators",
+          "request": {
+            "url": "http://localhost:8080/moderator/all",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{admin_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 1,
+                "firstName": "Admin",
+                "lastName": "User",
+                "email": "admin@example.com",
+                "isModerator": true
+              },
+              {
+                "id": 2,
+                "firstName": "Moderator",
+                "lastName": "User",
+                "email": "moderator@example.com",
+                "isModerator": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get All Banned Users",
+          "request": {
+            "url": "http://localhost:8080/moderator/banned",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{admin_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 3,
+                "firstName": "Regular",
+                "lastName": "User",
+                "email": "user@example.com",
+                "isModerator": false,
+                "isBanned": true,
+                "banReason": "Repeatedly posting inappropriate content",
+                "bannedAt": "2023-05-14T10:15:30",
+                "bannedById": 2
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

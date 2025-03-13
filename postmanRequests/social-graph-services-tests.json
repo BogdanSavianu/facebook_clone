@@ -1,0 +1,321 @@
+{
+  "info": {
+    "name": "Social Graph Service Tests",
+    "description": "Tests for the Social Graph Service functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Social Graph Management Tests",
+      "item": [
+        {
+          "name": "Create Friend Connection",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "userId": 3,
+              "targetUserId": 4,
+              "connectionType": "FRIEND_REQUEST"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "userId": 3,
+              "targetUserId": 4,
+              "connectionType": "FRIEND_REQUEST",
+              "status": "PENDING",
+              "createdAt": "2023-05-14T10:30:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Accept Friend Request",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections/1/accept",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{target_user_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "userId": 3,
+              "targetUserId": 4,
+              "connectionType": "FRIEND",
+              "status": "ACTIVE",
+              "createdAt": "2023-05-14T10:30:00",
+              "updatedAt": "2023-05-14T11:00:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Create Abusive Connection",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{banned_user_token}}"
+            },
+            "body": {
+              "userId": 5,
+              "targetUserId": 6,
+              "connectionType": "FRIEND_REQUEST",
+              "message": "Inappropriate friend request message with harassment"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "userId": 5,
+              "targetUserId": 6,
+              "connectionType": "FRIEND_REQUEST",
+              "status": "PENDING",
+              "message": "Inappropriate friend request message with harassment",
+              "createdAt": "2023-05-14T12:00:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Report Connection",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections/2/report",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{target_user_token}}"
+            },
+            "body": {
+              "reportingUserId": 6,
+              "reason": "Harassment in friend request message",
+              "details": "The user sent inappropriate content in their friend request"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "connectionId": 2,
+              "reportingUserId": 6,
+              "reason": "Harassment in friend request message",
+              "details": "The user sent inappropriate content in their friend request",
+              "status": "PENDING",
+              "createdAt": "2023-05-14T12:15:00"
+            }
+          }
+        },
+        {
+          "name": "Get Reported Connections",
+          "request": {
+            "url": "http://localhost:8080/social-graph/reports",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 1,
+                "connectionId": 2,
+                "connection": {
+                  "id": 2,
+                  "userId": 5,
+                  "targetUserId": 6,
+                  "connectionType": "FRIEND_REQUEST",
+                  "status": "PENDING",
+                  "message": "Inappropriate friend request message with harassment",
+                  "createdAt": "2023-05-14T12:00:00",
+                  "isRemoved": false
+                },
+                "reportingUserId": 6,
+                "reason": "Harassment in friend request message",
+                "details": "The user sent inappropriate content in their friend request",
+                "status": "PENDING",
+                "createdAt": "2023-05-14T12:15:00"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Moderator Remove Connection",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections/2/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "reason": "Harassment in connection request"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "Connection removed by moderator"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Connection",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections/2",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 2,
+              "userId": 5,
+              "targetUserId": 6,
+              "connectionType": "FRIEND_REQUEST",
+              "status": "PENDING",
+              "message": "Inappropriate friend request message with harassment",
+              "createdAt": "2023-05-14T12:00:00",
+              "isRemoved": true,
+              "removedBy": 2,
+              "removalReason": "Harassment in connection request"
+            }
+          }
+        },
+        {
+          "name": "Update Report Status After Moderation",
+          "request": {
+            "url": "http://localhost:8080/social-graph/reports/1",
+            "method": "PATCH",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "status": "RESOLVED",
+              "moderatorNotes": "Removed the reported connection due to harassment"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "connectionId": 2,
+              "reportingUserId": 6,
+              "reason": "Harassment in friend request message",
+              "details": "The user sent inappropriate content in their friend request",
+              "status": "RESOLVED",
+              "moderatorId": 2,
+              "moderatorNotes": "Removed the reported connection due to harassment",
+              "createdAt": "2023-05-14T12:15:00",
+              "resolvedAt": "2023-05-14T13:00:00"
+            }
+          }
+        },
+        {
+          "name": "Get All Connections by Banned User",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections/user/5",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 2,
+                "userId": 5,
+                "targetUserId": 6,
+                "connectionType": "FRIEND_REQUEST",
+                "status": "PENDING",
+                "message": "Inappropriate friend request message with harassment",
+                "createdAt": "2023-05-14T12:00:00",
+                "isRemoved": true,
+                "removedBy": 2,
+                "removalReason": "Harassment in connection request"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Block User",
+          "request": {
+            "url": "http://localhost:8080/social-graph/connections",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{target_user_token}}"
+            },
+            "body": {
+              "userId": 6,
+              "targetUserId": 5,
+              "connectionType": "BLOCK"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 3,
+              "userId": 6,
+              "targetUserId": 5,
+              "connectionType": "BLOCK",
+              "status": "ACTIVE",
+              "createdAt": "2023-05-14T13:30:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Get User Blocks",
+          "request": {
+            "url": "http://localhost:8080/social-graph/blocks/user/6",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{target_user_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 3,
+                "userId": 6,
+                "targetUserId": 5,
+                "connectionType": "BLOCK",
+                "status": "ACTIVE",
+                "createdAt": "2023-05-14T13:30:00"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

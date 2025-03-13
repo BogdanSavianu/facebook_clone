@@ -1,0 +1,17 @@
+# Social Graph Service specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/
+
+# Any data exports or graph visualization files
+/exports/
+/graph-vis/
+*.graphml
+*.gephi 

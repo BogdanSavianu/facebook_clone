@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: apiGateway
+  cloud:
+    gateway:
+      routes:
+        - id: authService
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+        - id: userService
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/users/**
+        - id: socialGraphService
+          uri: lb://SOCIAL-GRAPH-SERVICE
+          predicates:
+            - Path=/friendships/**
+        - id: contentService
+          uri: lb://CONTENT-SERVICE
+          predicates:
+            - Path=/posts/**, /postComments/**, /postTags/**
+        - id: groupService
+          uri: lb://GROUP-SERVICE
+          predicates:
+            - Path=/groups/**, /groupMembers/**
+        - id: messagingService
+          uri: lb://MESSAGING-SERVICE
+          predicates:
+            - Path=/conversations/**, /conversationMembers/**, /conversationMessages/**
+        - id: eventService
+          uri: lb://EVENT-SERVICE
+          predicates:
+            - Path=/events/**, /eventAttendees/**
+      discovery:
+        locator:
+          enabled: true

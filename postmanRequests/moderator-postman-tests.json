@@ -1,0 +1,484 @@
+{
+    "info": {
+      "name": "Facebook Moderator Functionality Tests",
+      "description": "A collection of requests to test moderator functionality in the Facebook application",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "User Management",
+        "item": [
+          {
+            "name": "Login as Admin",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"email\": \"admin@example.com\",\n\t\"password\": \"adminPassword123\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/auth/signin",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["auth", "signin"]
+              },
+              "description": "Login as an admin user to get a JWT token for further operations"
+            }
+          },
+          {
+            "name": "Promote User to Moderator",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "1"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:8080/moderator/promote/2",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["moderator", "promote", "2"]
+              },
+              "description": "Promote user with ID 2 to moderator status. The admin ID is 1."
+            }
+          },
+          {
+            "name": "Demote Moderator",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "1"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:8080/moderator/demote/2",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["moderator", "demote", "2"]
+              },
+              "description": "Demote the user with ID 2 from moderator status. The admin ID is 1."
+            }
+          },
+          {
+            "name": "Check if User is Moderator",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:8080/moderator/isModerator/2",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["moderator", "isModerator", "2"]
+              },
+              "description": "Check if user with ID 2 is a moderator"
+            }
+          },
+          {
+            "name": "Ban User",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "2"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{moderator_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"userId\": 3,\n\t\"reason\": \"Repeatedly posting inappropriate content\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/moderator/ban",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["moderator", "ban"]
+              },
+              "description": "Ban user with ID 3. The moderator ID is 2."
+            }
+          },
+          {
+            "name": "Unban User",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "2"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{moderator_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:8080/moderator/unban/3",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["moderator", "unban", "3"]
+              },
+              "description": "Unban user with ID 3. The moderator ID is 2."
+            }
+          },
+          {
+            "name": "Check if User is Banned",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{admin_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:8080/moderator/isBanned/3",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["moderator", "isBanned", "3"]
+              },
+              "description": "Check if user with ID 3 is banned"
+            }
+          },
+          {
+            "name": "Login as Banned User",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"email\": \"banned@example.com\",\n\t\"password\": \"password123\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/auth/signin",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["auth", "signin"]
+              },
+              "description": "Attempt to login as a banned user. This should return a 403 Forbidden response."
+            }
+          }
+        ]
+      },
+      {
+        "name": "Post Moderation",
+        "item": [
+          {
+            "name": "Create Test Post",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"userId\": 3,\n\t\"title\": \"Test Post\",\n\t\"body\": \"This is a test post that might contain inappropriate content.\",\n\t\"mediaType\": \"none\",\n\t\"status\": \"posted\",\n\t\"privacySetting\": \"public\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/posts",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["posts"]
+              },
+              "description": "Create a test post to moderate"
+            }
+          },
+          {
+            "name": "Edit Post as Moderator",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "2"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{moderator_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"action\": \"EDIT\",\n\t\"content\": \"This post has been edited by a moderator to remove inappropriate content.\",\n\t\"reason\": \"Content violated community guidelines\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/posts/1/moderate",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["posts", "1", "moderate"]
+              },
+              "description": "Edit post with ID 1 as a moderator. The moderator ID is 2."
+            }
+          },
+          {
+            "name": "Remove Post as Moderator",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "2"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{moderator_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"action\": \"REMOVE\",\n\t\"reason\": \"Content violated community guidelines and could not be edited\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/posts/1/moderate",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["posts", "1", "moderate"]
+              },
+              "description": "Remove post with ID 1 as a moderator. The moderator ID is 2."
+            }
+          }
+        ]
+      },
+      {
+        "name": "Comment Moderation",
+        "item": [
+          {
+            "name": "Create Test Comment",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{user_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"postId\": 1,\n\t\"commenterId\": 3,\n\t\"content\": \"This is a test comment that might contain inappropriate content.\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/comments",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["comments"]
+              },
+              "description": "Create a test comment to moderate"
+            }
+          },
+          {
+            "name": "Edit Comment as Moderator",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "2"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{moderator_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"action\": \"EDIT\",\n\t\"content\": \"This comment has been edited by a moderator to remove inappropriate content.\",\n\t\"reason\": \"Comment violated community guidelines\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/comments/1/moderate",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["comments", "1", "moderate"]
+              },
+              "description": "Edit comment with ID 1 as a moderator. The moderator ID is 2."
+            }
+          },
+          {
+            "name": "Remove Comment as Moderator",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "X-User-ID",
+                  "value": "2"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{moderator_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n\t\"action\": \"REMOVE\",\n\t\"reason\": \"Comment violated community guidelines and could not be edited\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:8080/comments/1/moderate",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["comments", "1", "moderate"]
+              },
+              "description": "Remove comment with ID 1 as a moderator. The moderator ID is 2."
+            }
+          }
+        ]
+      },
+      {
+        "name": "Authentication Tests",
+        "item": [
+          {
+            "name": "Validate JWT Token of Banned User",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:8080/auth/validate?token={{banned_user_token}}",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["auth", "validate"],
+                "query": [
+                  {
+                    "key": "token",
+                    "value": "{{banned_user_token}}"
+                  }
+                ]
+              },
+              "description": "Validate a JWT token of a banned user. This should return false."
+            }
+          },
+          {
+            "name": "Access Protected Resource as Banned User",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{banned_user_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:8080/users/3",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "8080",
+                "path": ["users", "3"]
+              },
+              "description": "Attempt to access a protected resource as a banned user. This should be rejected."
+            }
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "key": "admin_token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "type": "string",
+        "description": "JWT token for an admin user"
+      },
+      {
+        "key": "moderator_token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "type": "string",
+        "description": "JWT token for a moderator user"
+      },
+      {
+        "key": "user_token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "type": "string",
+        "description": "JWT token for a regular user"
+      },
+      {
+        "key": "banned_user_token",
+        "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "type": "string",
+        "description": "JWT token for a banned user (obtained before they were banned)"
+      }
+    ]
+  }

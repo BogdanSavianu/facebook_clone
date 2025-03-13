@@ -1,0 +1,412 @@
+{
+  "info": {
+    "name": "Messaging Service Tests",
+    "description": "Tests for the Messaging Service functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Messaging Management Tests",
+      "item": [
+        {
+          "name": "Create Chat",
+          "request": {
+            "url": "http://localhost:8080/chats",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "creatorId": 3,
+              "participants": [3, 4],
+              "type": "DIRECT"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "creatorId": 3,
+              "type": "DIRECT",
+              "participants": [
+                {
+                  "userId": 3,
+                  "joinedAt": "2023-05-14T14:00:00",
+                  "status": "ACTIVE"
+                },
+                {
+                  "userId": 4,
+                  "joinedAt": "2023-05-14T14:00:00",
+                  "status": "ACTIVE"
+                }
+              ],
+              "createdAt": "2023-05-14T14:00:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Send Normal Message",
+          "request": {
+            "url": "http://localhost:8080/messages",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "chatId": 1,
+              "senderId": 3,
+              "content": "Hello! This is a test message.",
+              "type": "TEXT"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "chatId": 1,
+              "senderId": 3,
+              "content": "Hello! This is a test message.",
+              "type": "TEXT",
+              "createdAt": "2023-05-14T14:05:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Send Abusive Message",
+          "request": {
+            "url": "http://localhost:8080/messages",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{banned_user_token}}"
+            },
+            "body": {
+              "chatId": 1,
+              "senderId": 5,
+              "content": "This is an abusive message with threatening content and harassment.",
+              "type": "TEXT"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "chatId": 1,
+              "senderId": 5,
+              "content": "This is an abusive message with threatening content and harassment.",
+              "type": "TEXT",
+              "createdAt": "2023-05-14T14:10:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Report Message",
+          "request": {
+            "url": "http://localhost:8080/messages/2/report",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "reportingUserId": 3,
+              "reason": "Harassment and threats",
+              "details": "The message contains threatening language and harassment"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "messageId": 2,
+              "reportingUserId": 3,
+              "reason": "Harassment and threats",
+              "details": "The message contains threatening language and harassment",
+              "status": "PENDING",
+              "createdAt": "2023-05-14T14:15:00"
+            }
+          }
+        },
+        {
+          "name": "Get Reported Messages",
+          "request": {
+            "url": "http://localhost:8080/messages/reports",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 1,
+                "messageId": 2,
+                "message": {
+                  "id": 2,
+                  "chatId": 1,
+                  "senderId": 5,
+                  "content": "This is an abusive message with threatening content and harassment.",
+                  "type": "TEXT",
+                  "createdAt": "2023-05-14T14:10:00",
+                  "isRemoved": false
+                },
+                "reportingUserId": 3,
+                "reason": "Harassment and threats",
+                "details": "The message contains threatening language and harassment",
+                "status": "PENDING",
+                "createdAt": "2023-05-14T14:15:00"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Remove Message as Moderator",
+          "request": {
+            "url": "http://localhost:8080/messages/2/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "reason": "Message contains harassment and threats"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "Message removed by moderator"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Message",
+          "request": {
+            "url": "http://localhost:8080/messages/2",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 2,
+              "chatId": 1,
+              "senderId": 5,
+              "content": "This is an abusive message with threatening content and harassment.",
+              "type": "TEXT",
+              "createdAt": "2023-05-14T14:10:00",
+              "isRemoved": true,
+              "removedBy": 2,
+              "removalReason": "Message contains harassment and threats"
+            }
+          }
+        },
+        {
+          "name": "Update Report Status After Moderation",
+          "request": {
+            "url": "http://localhost:8080/messages/reports/1",
+            "method": "PATCH",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "status": "RESOLVED",
+              "moderatorNotes": "Removed the reported message due to harassment and threats"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "messageId": 2,
+              "reportingUserId": 3,
+              "reason": "Harassment and threats",
+              "details": "The message contains threatening language and harassment",
+              "status": "RESOLVED",
+              "moderatorId": 2,
+              "moderatorNotes": "Removed the reported message due to harassment and threats",
+              "createdAt": "2023-05-14T14:15:00",
+              "resolvedAt": "2023-05-14T14:30:00"
+            }
+          }
+        },
+        {
+          "name": "Create Group Chat",
+          "request": {
+            "url": "http://localhost:8080/chats",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "creatorId": 3,
+              "participants": [3, 4, 5, 6],
+              "type": "GROUP",
+              "name": "Test Group Chat"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "creatorId": 3,
+              "type": "GROUP",
+              "name": "Test Group Chat",
+              "participants": [
+                {
+                  "userId": 3,
+                  "joinedAt": "2023-05-14T15:00:00",
+                  "status": "ACTIVE",
+                  "role": "ADMIN"
+                },
+                {
+                  "userId": 4,
+                  "joinedAt": "2023-05-14T15:00:00",
+                  "status": "ACTIVE",
+                  "role": "MEMBER"
+                },
+                {
+                  "userId": 5,
+                  "joinedAt": "2023-05-14T15:00:00",
+                  "status": "ACTIVE",
+                  "role": "MEMBER"
+                },
+                {
+                  "userId": 6,
+                  "joinedAt": "2023-05-14T15:00:00",
+                  "status": "ACTIVE",
+                  "role": "MEMBER"
+                }
+              ],
+              "createdAt": "2023-05-14T15:00:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Send Inappropriate Message in Group Chat",
+          "request": {
+            "url": "http://localhost:8080/messages",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{banned_user_token}}"
+            },
+            "body": {
+              "chatId": 2,
+              "senderId": 5,
+              "content": "Inappropriate message with offensive content shared to group chat.",
+              "type": "TEXT"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 3,
+              "chatId": 2,
+              "senderId": 5,
+              "content": "Inappropriate message with offensive content shared to group chat.",
+              "type": "TEXT",
+              "createdAt": "2023-05-14T15:10:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Remove User from Group Chat",
+          "request": {
+            "url": "http://localhost:8080/chats/2/participants/5",
+            "method": "DELETE",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "removingUserId": 3,
+              "reason": "Sending inappropriate messages"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "User removed from chat",
+              "participant": {
+                "userId": 5,
+                "joinedAt": "2023-05-14T15:00:00",
+                "status": "REMOVED",
+                "role": "MEMBER",
+                "removedBy": 3,
+                "removalReason": "Sending inappropriate messages",
+                "removedAt": "2023-05-14T15:15:00"
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Chat Participants",
+          "request": {
+            "url": "http://localhost:8080/chats/2/participants",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{user_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "userId": 3,
+                "joinedAt": "2023-05-14T15:00:00",
+                "status": "ACTIVE",
+                "role": "ADMIN"
+              },
+              {
+                "userId": 4,
+                "joinedAt": "2023-05-14T15:00:00",
+                "status": "ACTIVE",
+                "role": "MEMBER"
+              },
+              {
+                "userId": 5,
+                "joinedAt": "2023-05-14T15:00:00",
+                "status": "REMOVED",
+                "role": "MEMBER",
+                "removedBy": 3,
+                "removalReason": "Sending inappropriate messages",
+                "removedAt": "2023-05-14T15:15:00"
+              },
+              {
+                "userId": 6,
+                "joinedAt": "2023-05-14T15:00:00",
+                "status": "ACTIVE",
+                "role": "MEMBER"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

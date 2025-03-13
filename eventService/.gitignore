@@ -1,0 +1,16 @@
+# Event Service specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/
+
+# Event images and other data that might be stored locally during development
+/event-data/
+/event-uploads/
+/calendar-exports/ 

@@ -1,0 +1,416 @@
+{
+  "info": {
+    "name": "Group Service Tests",
+    "description": "Tests for the Group Service functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Group Management Tests",
+      "item": [
+        {
+          "name": "Create Group",
+          "request": {
+            "url": "http://localhost:8080/groups",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "name": "Test Group",
+              "description": "A group for testing moderator features",
+              "creatorId": 3,
+              "type": "PUBLIC",
+              "rules": [
+                "Be respectful",
+                "No inappropriate content",
+                "Follow community guidelines"
+              ]
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "name": "Test Group",
+              "description": "A group for testing moderator features",
+              "creatorId": 3,
+              "type": "PUBLIC",
+              "rules": [
+                "Be respectful",
+                "No inappropriate content",
+                "Follow community guidelines"
+              ],
+              "createdAt": "2023-05-14T09:00:00",
+              "membersCount": 1,
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Join Group",
+          "request": {
+            "url": "http://localhost:8080/groups/1/members",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{another_user_token}}"
+            },
+            "body": {
+              "userId": 4
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "groupId": 1,
+              "userId": 4,
+              "role": "MEMBER",
+              "joinedAt": "2023-05-14T09:15:00",
+              "status": "ACTIVE",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Create Group Post",
+          "request": {
+            "url": "http://localhost:8080/groups/1/posts",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{another_user_token}}"
+            },
+            "body": {
+              "userId": 4,
+              "title": "Inappropriate Group Post",
+              "content": "This post violates group rules with inappropriate content",
+              "mediaType": "none"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "groupId": 1,
+              "userId": 4,
+              "title": "Inappropriate Group Post",
+              "content": "This post violates group rules with inappropriate content",
+              "mediaType": "none",
+              "createdAt": "2023-05-14T09:30:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Report Group Post",
+          "request": {
+            "url": "http://localhost:8080/groups/posts/1/report",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "reportingUserId": 3,
+              "reason": "Inappropriate content",
+              "details": "This post violates group rules with inappropriate content"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "groupPostId": 1,
+              "reportingUserId": 3,
+              "reason": "Inappropriate content",
+              "details": "This post violates group rules with inappropriate content",
+              "status": "PENDING",
+              "createdAt": "2023-05-14T09:45:00"
+            }
+          }
+        },
+        {
+          "name": "Get Reported Group Posts",
+          "request": {
+            "url": "/groups/1/reports",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{user_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 1,
+                "groupPostId": 1,
+                "post": {
+                  "id": 1,
+                  "groupId": 1,
+                  "userId": 4,
+                  "title": "Inappropriate Group Post",
+                  "content": "This post violates group rules with inappropriate content",
+                  "mediaType": "none",
+                  "createdAt": "2023-05-14T09:30:00",
+                  "isRemoved": false
+                },
+                "reportingUserId": 3,
+                "reason": "Inappropriate content",
+                "details": "This post violates group rules with inappropriate content",
+                "status": "PENDING",
+                "createdAt": "2023-05-14T09:45:00"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Remove Group Post as Group Admin",
+          "request": {
+            "url": "/groups/posts/1/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "moderatorId": 3,
+              "reason": "Violated group rules with inappropriate content"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "Group post removed by group admin"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Group Post",
+          "request": {
+            "url": "/groups/posts/1",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{user_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "groupId": 1,
+              "userId": 4,
+              "title": "Inappropriate Group Post",
+              "content": "This post violates group rules with inappropriate content",
+              "mediaType": "none",
+              "createdAt": "2023-05-14T09:30:00",
+              "isRemoved": true,
+              "removedBy": 3,
+              "removalReason": "Violated group rules with inappropriate content"
+            }
+          }
+        },
+        {
+          "name": "Create Problematic Group",
+          "request": {
+            "url": "/groups",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{banned_user_token}}"
+            },
+            "body": {
+              "name": "Problematic Group",
+              "description": "A group with problematic content that violates platform policies",
+              "creatorId": 5,
+              "type": "PRIVATE",
+              "rules": []
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "name": "Problematic Group",
+              "description": "A group with problematic content that violates platform policies",
+              "creatorId": 5,
+              "type": "PRIVATE",
+              "rules": [],
+              "createdAt": "2023-05-14T10:00:00",
+              "membersCount": 1,
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Report Group",
+          "request": {
+            "url": "/groups/2/report",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "reportingUserId": 3,
+              "reason": "Group violates platform policies",
+              "details": "The group is created to spread harmful content"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "groupId": 2,
+              "reportingUserId": 3,
+              "reason": "Group violates platform policies",
+              "details": "The group is created to spread harmful content",
+              "status": "PENDING",
+              "createdAt": "2023-05-14T10:15:00"
+            }
+          }
+        },
+        {
+          "name": "Get Reported Groups for Platform Moderator",
+          "request": {
+            "url": "/groups/reports",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 1,
+                "groupId": 2,
+                "group": {
+                  "id": 2,
+                  "name": "Problematic Group",
+                  "description": "A group with problematic content that violates platform policies",
+                  "creatorId": 5,
+                  "type": "PRIVATE",
+                  "createdAt": "2023-05-14T10:00:00",
+                  "membersCount": 1,
+                  "isRemoved": false
+                },
+                "reportingUserId": 3,
+                "reason": "Group violates platform policies",
+                "details": "The group is created to spread harmful content",
+                "status": "PENDING",
+                "createdAt": "2023-05-14T10:15:00"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Remove Group as Platform Moderator",
+          "request": {
+            "url": "/groups/2/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "reason": "Group violates platform policies with harmful content"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "Group removed by platform moderator"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Group",
+          "request": {
+            "url": "/groups/2",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 2,
+              "name": "Problematic Group",
+              "description": "A group with problematic content that violates platform policies",
+              "creatorId": 5,
+              "type": "PRIVATE",
+              "rules": [],
+              "createdAt": "2023-05-14T10:00:00",
+              "membersCount": 1,
+              "isRemoved": true,
+              "removedBy": 2,
+              "removalReason": "Group violates platform policies with harmful content"
+            }
+          }
+        },
+        {
+          "name": "Remove User from Group",
+          "request": {
+            "url": "/groups/1/members/4/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "moderatorId": 3,
+              "reason": "Multiple violations of group rules"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "User removed from group"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Group Member",
+          "request": {
+            "url": "/groups/1/members/4",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{user_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 2,
+              "groupId": 1,
+              "userId": 4,
+              "role": "MEMBER",
+              "joinedAt": "2023-05-14T09:15:00",
+              "status": "REMOVED",
+              "isRemoved": true,
+              "removedBy": 3,
+              "removalReason": "Multiple violations of group rules",
+              "removedAt": "2023-05-14T11:00:00"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# Messaging Service specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/
+
+# Message attachments and temp storage
+/attachments/
+/message-data/
+/tmp/ 

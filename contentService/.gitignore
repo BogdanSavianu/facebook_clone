@@ -1,0 +1,16 @@
+# Content Service specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/
+
+# Media files that might be stored locally during development
+/media-uploads/
+/post-content/
+/temp-files/ 

@@ -1,0 +1,18 @@
+# API Gateway specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+**/ssl/
+
+# Build directories
+/target/
+/bin/
+
+# Gateway specific files
+/logs/
+/cache/
+*.crt
+*.p12 

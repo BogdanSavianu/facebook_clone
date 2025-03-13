@@ -1,0 +1,17 @@
+# Auth Service specific ignores
+
+# Ignore main application.properties which contains JWT secrets
+src/main/resources/application.properties
+
+# Keep the Docker configuration
+!src/main/resources/application-docker.properties
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/ 

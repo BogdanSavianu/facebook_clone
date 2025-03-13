@@ -1,0 +1,15 @@
+# User Service specific ignores
+
+# Ignore any local configuration files
+.env
+*.key
+*.pem
+secrets/
+
+# Build directories
+/target/
+/bin/
+
+# Profile images and other user data that might be stored locally during development
+/user-data/
+/uploads/ 

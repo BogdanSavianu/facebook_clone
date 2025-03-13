@@ -1,0 +1,237 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:14-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: facebook_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - facebookNetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    image: facebook-api-gateway
+    container_name: apiGateway
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # Auth Service
+  auth-service:
+    image: facebook-auth-service
+    container_name: authService
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+      - SERVICES_USER-SERVICE_URL=http://userService:8082
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # User Service
+  user-service:
+    image: facebook-user-service
+    container_name: userService
+    restart: always
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # Social Graph Service
+  social-graph-service:
+    image: facebook-social-graph-service
+    container_name: socialGraphService
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/social_graph_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # Content Service
+  content-service:
+    image: facebook-content-service
+    container_name: contentService
+    restart: always
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/content_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # Group Service
+  group-service:
+    image: facebook-group-service
+    container_name: groupService
+    restart: always
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/group_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # Messaging Service
+  messaging-service:
+    image: facebook-messaging-service
+    container_name: messagingService
+    restart: always
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/messaging_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+  # Event Service
+  event-service:
+    image: facebook-event-service
+    container_name: eventService
+    restart: always
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/event_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_ENABLED=false
+      - SPRING_CLOUD_DISCOVERY_ENABLED=false
+      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
+      - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
+      - MANAGEMENT_METRICS_ENABLE_ALL=false
+      - MANAGEMENT_ENDPOINTS_ENABLED_BY_DEFAULT=false
+    depends_on:
+      - postgres
+    networks:
+      - facebookNetwork
+
+networks:
+  facebookNetwork:
+    driver: bridge
+
+volumes:
+  postgres-data: 

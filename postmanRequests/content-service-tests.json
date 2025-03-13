@@ -1,0 +1,361 @@
+{
+  "info": {
+    "name": "Content Service Tests",
+    "description": "Tests for the Content Service functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Content Management Tests",
+      "item": [
+        {
+          "name": "Create Test Post",
+          "request": {
+            "url": "http://localhost:8080/posts",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "userId": 3,
+              "title": "Test Post",
+              "body": "This is a test post that contains inappropriate content.",
+              "mediaType": "none",
+              "status": "posted",
+              "privacySetting": "public"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "userId": 3,
+              "title": "Test Post",
+              "body": "This is a test post that contains inappropriate content.",
+              "mediaType": "none",
+              "status": "posted",
+              "privacySetting": "public",
+              "createdAt": "2023-05-14T11:30:45",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Create Another Post",
+          "request": {
+            "url": "http://localhost:8080/posts",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "userId": 3,
+              "title": "Another Test Post",
+              "body": "This is another test post with potentially problematic content.",
+              "mediaType": "none",
+              "status": "posted",
+              "privacySetting": "public"
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "userId": 3,
+              "title": "Another Test Post",
+              "body": "This is another test post with potentially problematic content.",
+              "mediaType": "none",
+              "status": "posted",
+              "privacySetting": "public",
+              "createdAt": "2023-05-14T11:45:12",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Create Test Comment",
+          "request": {
+            "url": "http://localhost:8080/comments",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "postId": 1,
+              "commenterId": 3,
+              "content": "This is a test comment that contains inappropriate content."
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 1,
+              "postId": 1,
+              "commenterId": 3,
+              "content": "This is a test comment that contains inappropriate content.",
+              "createdAt": "2023-05-14T12:15:30",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Edit Post as Moderator",
+          "request": {
+            "url": "http://localhost:8080/posts/1/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "EDIT",
+              "content": "This post has been edited by a moderator to remove inappropriate content.",
+              "reason": "Content violated community guidelines"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "userId": 3,
+              "title": "Test Post",
+              "body": "This post has been edited by a moderator to remove inappropriate content.",
+              "mediaType": "none",
+              "status": "posted",
+              "privacySetting": "public",
+              "createdAt": "2023-05-14T11:30:45",
+              "updatedAt": "2023-05-14T12:30:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Remove Post as Moderator",
+          "request": {
+            "url": "http://localhost:8080/posts/2/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "reason": "Content violated community guidelines and could not be edited"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "Post removed by moderator"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Post",
+          "request": {
+            "url": "http://localhost:8080/posts/2",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 2,
+              "userId": 3,
+              "title": "Another Test Post",
+              "body": "This is another test post with potentially problematic content.",
+              "mediaType": "none",
+              "status": "posted",
+              "privacySetting": "public",
+              "createdAt": "2023-05-14T11:45:12",
+              "isRemoved": true,
+              "removedBy": 2,
+              "removalReason": "Content violated community guidelines and could not be edited"
+            }
+          }
+        },
+        {
+          "name": "Edit Comment as Moderator",
+          "request": {
+            "url": "http://localhost:8080/comments/1/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "EDIT",
+              "content": "This comment has been edited by a moderator to remove inappropriate content.",
+              "reason": "Comment violated community guidelines"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 1,
+              "postId": 1,
+              "commenterId": 3,
+              "content": "This comment has been edited by a moderator to remove inappropriate content.",
+              "createdAt": "2023-05-14T12:15:30",
+              "updatedAt": "2023-05-14T12:45:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Create Another Comment",
+          "request": {
+            "url": "http://localhost:8080/comments",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "postId": 1,
+              "commenterId": 3,
+              "content": "This is another comment with offensive language that should be removed."
+            }
+          },
+          "response": {
+            "status": 201,
+            "body": {
+              "id": 2,
+              "postId": 1,
+              "commenterId": 3,
+              "content": "This is another comment with offensive language that should be removed.",
+              "createdAt": "2023-05-14T13:00:00",
+              "isRemoved": false,
+              "removedBy": null,
+              "removalReason": null
+            }
+          }
+        },
+        {
+          "name": "Remove Comment as Moderator",
+          "request": {
+            "url": "http://localhost:8080/comments/2/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "2",
+              "Authorization": "Bearer {{moderator_token}}"
+            },
+            "body": {
+              "action": "REMOVE",
+              "reason": "Comment contained extremely offensive language"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "message": "Comment removed by moderator"
+            }
+          }
+        },
+        {
+          "name": "Get Removed Comment",
+          "request": {
+            "url": "http://localhost:8080/comments/2",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": {
+              "id": 2,
+              "postId": 1,
+              "commenterId": 3,
+              "content": "This is another comment with offensive language that should be removed.",
+              "createdAt": "2023-05-14T13:00:00",
+              "isRemoved": true,
+              "removedBy": 2,
+              "removalReason": "Comment contained extremely offensive language"
+            }
+          }
+        },
+        {
+          "name": "Non-Moderator Attempt to Moderate Post",
+          "request": {
+            "url": "http://localhost:8080/posts/1/moderate",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/json",
+              "X-User-ID": "3",
+              "Authorization": "Bearer {{user_token}}"
+            },
+            "body": {
+              "action": "EDIT",
+              "content": "This is an attempt to edit someone else's post",
+              "reason": "I don't like it"
+            }
+          },
+          "response": {
+            "status": 403,
+            "body": {
+              "message": "Only moderators can perform this action"
+            }
+          }
+        },
+        {
+          "name": "Get All Posts by Banned User",
+          "request": {
+            "url": "http://localhost:8080/posts/user/3",
+            "method": "GET",
+            "headers": {
+              "Authorization": "Bearer {{moderator_token}}"
+            }
+          },
+          "response": {
+            "status": 200,
+            "body": [
+              {
+                "id": 1,
+                "userId": 3,
+                "title": "Test Post",
+                "body": "This post has been edited by a moderator to remove inappropriate content.",
+                "mediaType": "none",
+                "status": "posted",
+                "privacySetting": "public",
+                "createdAt": "2023-05-14T11:30:45",
+                "updatedAt": "2023-05-14T12:30:00",
+                "isRemoved": false
+              },
+              {
+                "id": 2,
+                "userId": 3,
+                "title": "Another Test Post",
+                "body": "This is another test post with potentially problematic content.",
+                "mediaType": "none",
+                "status": "posted",
+                "privacySetting": "public",
+                "createdAt": "2023-05-14T11:45:12",
+                "isRemoved": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
