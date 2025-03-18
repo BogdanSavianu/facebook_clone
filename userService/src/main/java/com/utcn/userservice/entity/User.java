@@ -55,7 +55,6 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    // New fields for moderator functionality
     @Column(name = "is_moderator", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean isModerator = false;
     

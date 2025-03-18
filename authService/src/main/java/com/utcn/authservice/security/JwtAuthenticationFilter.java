@@ -38,7 +38,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String username = tokenProvider.getUsernameFromToken(jwt);
                 Integer userId = tokenProvider.getUserIdFromJWT(jwt);
                 
-                // Check if the user is banned
                 if (userServiceClient.isUserBanned(userId)) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.getWriter().write("Your account has been banned. Please contact support.");
