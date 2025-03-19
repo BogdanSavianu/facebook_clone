@@ -3,6 +3,7 @@ package com.utcn.contentservice.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -19,7 +20,8 @@ public class PostTag {
     @ManyToOne
     @MapsId("postId")
     @JoinColumn(name = "post_id")
-    private Post post;
+    @JsonBackReference
+    private Postable post;
 
     @Column(name = "tagged_person_id", insertable = false, updatable = false)
     private Integer taggedPersonId;
