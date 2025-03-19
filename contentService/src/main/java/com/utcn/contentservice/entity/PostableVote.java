@@ -1,28 +1,31 @@
 package com.utcn.contentservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.Data;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
+@Data
 @Entity
-@Table(name = "comment_votes", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"comment_id", "user_id"})
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "post_votes", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"post_id", "user_id"})
 })
-public class CommentVote {
+public class PostableVote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "comment_id", nullable = false)
-    private PostComment comment;
-
     @Column(name = "user_id", nullable = false)
     private Integer userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    @JsonBackReference
+    private Postable postable;
 
     @Column(nullable = false)
     private Integer value;
