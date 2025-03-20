@@ -41,10 +41,10 @@ public class FriendshipService {
     }
 
     public List<Friendship> getAcceptedFriendships(Integer userId) {
-        List<Friendship> sentFriendships = friendshipRepository.findByRequesterIdAndStatus(userId, "ACCEPTED");
-        List<Friendship> receivedFriendships = friendshipRepository.findByAddresseeIdAndStatus(userId, "ACCEPTED");
-        sentFriendships.addAll(receivedFriendships);
-        return sentFriendships;
+        List<Friendship> allFriendships = new ArrayList<>();
+        allFriendships.addAll(friendshipRepository.findByRequesterIdAndStatus(userId, "ACCEPTED"));
+        allFriendships.addAll(friendshipRepository.findByAddresseeIdAndStatus(userId, "ACCEPTED"));
+        return allFriendships;
     }
 
     public Friendship sendFriendRequest(Friendship friendship) {

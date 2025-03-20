@@ -27,7 +27,7 @@ public class PostableVote {
     @JsonBackReference
     private Postable postable;
 
-    @Column(nullable = false)
+    @Column(name = "vote_value", nullable = false)
     private Integer value;
 
     @Column(name = "created_at", nullable = false)

@@ -1,14 +1,12 @@
 package com.utcn.groupservice.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Setter
-@Getter
+@Data
 @Entity
 @Table(name = "groups")
 public class Group {

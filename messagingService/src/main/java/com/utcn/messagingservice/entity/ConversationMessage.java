@@ -1,16 +1,21 @@
 package com.utcn.messagingservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Setter
 @Getter
+@Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "conversation_messages")
 public class ConversationMessage {
 
@@ -23,6 +28,7 @@ public class ConversationMessage {
     @ManyToOne
     @MapsId("conversationId")
     @JoinColumn(name = "conversation_id")
+    @JsonBackReference
     private Conversation conversation;
 
     @Column(nullable = false)
@@ -41,38 +47,17 @@ public class ConversationMessage {
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
+    @Getter
+    @Setter
     @Embeddable
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ConversationMessageId implements Serializable {
-
         @Column(name = "sender_id")
         private Integer senderId;
 
         @Column(name = "conversation_id")
         private Integer conversationId;
-
-        public ConversationMessageId() {
-        }
-
-        public ConversationMessageId(Integer senderId, Integer conversationId) {
-            this.senderId = senderId;
-            this.conversationId = conversationId;
-        }
-
-        public Integer getSenderId() {
-            return senderId;
-        }
-
-        public void setSenderId(Integer senderId) {
-            this.senderId = senderId;
-        }
-
-        public Integer getConversationId() {
-            return conversationId;
-        }
-
-        public void setConversationId(Integer conversationId) {
-            this.conversationId = conversationId;
-        }
 
         @Override
         public boolean equals(Object o) {

@@ -3,13 +3,17 @@ package com.utcn.messagingservice.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@Setter
 @Getter
+@Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "conversation_members")
 public class ConversationMember {
 
@@ -27,38 +31,17 @@ public class ConversationMember {
     @Column(name = "is_admin")
     private Boolean isAdmin = false;
 
+    @Getter
+    @Setter
     @Embeddable
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ConversationMemberId implements Serializable {
-
         @Column(name = "conversation_id")
         private Integer conversationId;
 
         @Column(name = "member_id")
         private Integer memberId;
-
-        public ConversationMemberId() {
-        }
-
-        public ConversationMemberId(Integer conversationId, Integer memberId) {
-            this.conversationId = conversationId;
-            this.memberId = memberId;
-        }
-
-        public Integer getConversationId() {
-            return conversationId;
-        }
-
-        public void setConversationId(Integer conversationId) {
-            this.conversationId = conversationId;
-        }
-
-        public Integer getMemberId() {
-            return memberId;
-        }
-
-        public void setMemberId(Integer memberId) {
-            this.memberId = memberId;
-        }
 
         @Override
         public boolean equals(Object o) {

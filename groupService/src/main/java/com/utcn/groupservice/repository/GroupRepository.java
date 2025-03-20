@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface GroupRepository extends CrudRepository<Group, Integer> {
-    List<Group> findByName(String name);
+    List<Group> findByNameContainingIgnoreCase(String name);
 } 

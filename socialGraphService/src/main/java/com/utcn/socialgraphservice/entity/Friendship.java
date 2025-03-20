@@ -3,6 +3,8 @@ package com.utcn.socialgraphservice.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,6 +32,10 @@ public class Friendship {
     private LocalDate startedAt;
 
     @Embeddable
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class FriendshipId implements Serializable {
 
         @Column(name = "id_requester")
@@ -37,30 +43,6 @@ public class Friendship {
 
         @Column(name = "id_addressee")
         private Integer idAddressee;
-
-        public FriendshipId() {
-        }
-
-        public FriendshipId(Integer idRequester, Integer idAddressee) {
-            this.idRequester = idRequester;
-            this.idAddressee = idAddressee;
-        }
-
-        public Integer getIdRequester() {
-            return idRequester;
-        }
-
-        public void setIdRequester(Integer idRequester) {
-            this.idRequester = idRequester;
-        }
-
-        public Integer getIdAddressee() {
-            return idAddressee;
-        }
-
-        public void setIdAddressee(Integer idAddressee) {
-            this.idAddressee = idAddressee;
-        }
 
         @Override
         public boolean equals(Object o) {

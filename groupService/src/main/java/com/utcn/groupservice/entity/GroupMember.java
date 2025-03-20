@@ -2,14 +2,12 @@ package com.utcn.groupservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@Setter
-@Getter
+@Data
 @Entity
 @Table(name = "group_members")
 public class GroupMember {
@@ -26,6 +24,7 @@ public class GroupMember {
     @Column(name = "user_id", insertable = false, updatable = false)
     private Integer userId;
 
+    @Data
     @Embeddable
     public static class GroupMemberId implements Serializable {
 
