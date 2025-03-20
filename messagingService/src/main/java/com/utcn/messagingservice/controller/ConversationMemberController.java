@@ -42,12 +42,19 @@ public class ConversationMemberController {
         return new ResponseEntity<>(conversationMemberService.addConversationMember(member), HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public ResponseEntity<ConversationMember> updateConversationMember(@RequestBody ConversationMember member) {
-        ConversationMember existingMember = conversationMemberService.getConversationMemberById(member.getId());
+    @PutMapping("/{conversationId}/{memberId}")
+    public ResponseEntity<ConversationMember> updateMember(
+            @PathVariable Integer conversationId,
+            @PathVariable Integer memberId,
+            @RequestBody ConversationMember member) {
+        ConversationMember.ConversationMemberId memberKey = new ConversationMember.ConversationMemberId();
+        memberKey.setConversationId(conversationId);
+        memberKey.setMemberId(memberId);
+        ConversationMember existingMember = conversationMemberService.getConversationMemberById(memberKey);
         if (existingMember == null) {
             return ResponseEntity.notFound().build();
         }
+        member.setId(memberKey);
         return ResponseEntity.ok(conversationMemberService.updateConversationMember(member));
     }
 

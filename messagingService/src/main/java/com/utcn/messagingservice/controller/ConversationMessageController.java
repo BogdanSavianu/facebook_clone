@@ -37,13 +37,20 @@ public class ConversationMessageController {
         return new ResponseEntity<>(conversationMessageService.sendMessage(message), HttpStatus.CREATED);
     }
 
-    @PutMapping("/status")
-    public ResponseEntity<ConversationMessage> updateMessageStatus(@RequestBody ConversationMessage message) {
-        ConversationMessage existingMessage = conversationMessageService.getMessageById(message.getId());
+    @PutMapping("/{conversationId}/{senderId}")
+    public ResponseEntity<ConversationMessage> updateMessage(
+            @PathVariable Integer conversationId,
+            @PathVariable Integer senderId,
+            @RequestBody ConversationMessage message) {
+        ConversationMessage.ConversationMessageId messageId = new ConversationMessage.ConversationMessageId();
+        messageId.setConversationId(conversationId);
+        messageId.setSenderId(senderId);
+        ConversationMessage existingMessage = conversationMessageService.getMessageById(messageId);
         if (existingMessage == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(conversationMessageService.updateMessageStatus(message));
+        message.setId(messageId);
+        return ResponseEntity.ok(conversationMessageService.updateMessage(message));
     }
 
     @DeleteMapping("/{senderId}/{conversationId}")

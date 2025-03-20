@@ -19,7 +19,8 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     private Key getSigningKey() {
-        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
     
     public String generateToken(Authentication authentication) {

@@ -27,7 +27,7 @@ public class GroupService {
     }
 
     public List<Group> getGroupsByName(String name) {
-        return groupRepository.findByName(name);
+        return groupRepository.findByNameContainingIgnoreCase(name);
     }
 
     public Group createGroup(Group group) {

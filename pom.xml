@@ -40,7 +40,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Add micrometer-observation for all child modules -->
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-observation</artifactId>
@@ -49,9 +48,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- Common dependencies for all microservices -->
     <dependencies>
-        <!-- Add micrometer-observation to fix Eureka client registration issues -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-observation</artifactId>

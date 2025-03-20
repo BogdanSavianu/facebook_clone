@@ -1,7 +1,7 @@
 @echo off
 echo Starting the Facebook microservices application...
 
-REM Check if we should skip builds
+REM
 if "%1"=="--no-build" (
     echo Skipping build steps...
 ) else (

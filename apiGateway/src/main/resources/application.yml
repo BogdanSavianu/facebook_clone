@@ -8,33 +8,30 @@ spring:
     gateway:
       routes:
         - id: authService
-          uri: lb://AUTH-SERVICE
+          uri: http://auth-service:8081
           predicates:
             - Path=/auth/**
         - id: userService
-          uri: lb://USER-SERVICE
+          uri: http://user-service:8082
           predicates:
             - Path=/users/**
         - id: socialGraphService
-          uri: lb://SOCIAL-GRAPH-SERVICE
+          uri: http://social-graph-service:8083
           predicates:
             - Path=/friendships/**
         - id: contentService
-          uri: lb://CONTENT-SERVICE
+          uri: http://content-service:8084
           predicates:
             - Path=/posts/**, /postComments/**, /postTags/**
         - id: groupService
-          uri: lb://GROUP-SERVICE
+          uri: http://group-service:8085
           predicates:
             - Path=/groups/**, /groupMembers/**
         - id: messagingService
-          uri: lb://MESSAGING-SERVICE
+          uri: http://messaging-service:8086
           predicates:
             - Path=/conversations/**, /conversationMembers/**, /conversationMessages/**
         - id: eventService
-          uri: lb://EVENT-SERVICE
+          uri: http://event-service:8087
           predicates:
             - Path=/events/**, /eventAttendees/**
-      discovery:
-        locator:
-          enabled: true

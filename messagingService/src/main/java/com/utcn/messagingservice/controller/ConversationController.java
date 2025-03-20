@@ -42,11 +42,11 @@ public class ConversationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Conversation> updateConversation(@PathVariable Integer id, @RequestBody Conversation conversation) {
+        conversation.setId(id);
         Conversation existingConversation = conversationService.getConversationById(id);
         if (existingConversation == null) {
             return ResponseEntity.notFound().build();
         }
-        conversation.setId(id);
         return ResponseEntity.ok(conversationService.updateConversation(conversation));
     }
 

@@ -33,9 +33,6 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_MAIN_ALLOW_BEAN_DEFINITION_OVERRIDING=true
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -59,9 +56,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/auth_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -86,9 +80,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -112,9 +103,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/social_graph_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -138,9 +126,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/content_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -164,9 +149,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/group_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -190,9 +172,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/messaging_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
@@ -216,9 +195,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/event_service_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_ENABLED=false
-      - SPRING_CLOUD_DISCOVERY_ENABLED=false
-      - SPRING_CLOUD_SERVICE_REGISTRY_AUTO_REGISTRATION_ENABLED=false
       - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.actuate.autoconfigure.metrics.MetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.simple.SimpleMetricsExportAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.web.tomcat.TomcatMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.SystemMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration,org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
       - MANAGEMENT_METRICS_BINDERS_PROCESSOR_ENABLED=false
       - MANAGEMENT_HEALTH_DISKSPACE_ENABLED=false
