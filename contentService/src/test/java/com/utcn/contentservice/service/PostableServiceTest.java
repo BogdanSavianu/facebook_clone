@@ -32,7 +32,6 @@ public class PostableServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Setup test post
         testPost = new Postable();
         testPost.setId(1);
         testPost.setUserId(1);
@@ -41,7 +40,6 @@ public class PostableServiceTest {
         testPost.setCreatedAt(LocalDateTime.now());
         testPost.setUpdatedAt(LocalDateTime.now());
 
-        // Setup test comment
         testComment = new Postable();
         testComment.setId(2);
         testComment.setUserId(2);
