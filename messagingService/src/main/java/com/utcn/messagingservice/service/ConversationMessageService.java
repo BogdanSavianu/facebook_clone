@@ -48,7 +48,6 @@ public class ConversationMessageService {
         if (message.getStatus() == null) {
             message.setStatus("SENT");
         }
-        // Fetch and set the conversation
         Conversation conversation = conversationRepository.findById(message.getId().getConversationId())
                 .orElseThrow(() -> new RuntimeException("Conversation not found"));
         message.setConversation(conversation);
