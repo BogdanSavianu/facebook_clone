@@ -12,4 +12,7 @@ secrets/
 
 # Profile images and other user data that might be stored locally during development
 /user-data/
-/uploads/ 
+/uploads/
+
+src/main/resources/application.properties
+src/test/resources/application.properties
