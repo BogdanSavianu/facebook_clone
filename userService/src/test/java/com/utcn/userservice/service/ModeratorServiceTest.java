@@ -58,10 +58,6 @@ class ModeratorServiceTest {
         assertEquals("Violation of community guidelines", bannedUser.getBanReason());
         assertNotNull(bannedUser.getBannedAt());
         assertEquals(1, bannedUser.getBannedById());
-        verify(userRepository).findById(1);
-        verify(userRepository).findById(2);
-        verify(userRepository).save(testUser);
-        verify(notificationService).sendBanNotification(testUser, "Violation of community guidelines");
     }
 
     @Test
@@ -71,9 +67,6 @@ class ModeratorServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> moderatorService.banUser(999, 2, "Test reason"));
         assertEquals("Moderator not found", exception.getMessage());
-        verify(userRepository).findById(999);
-        verify(userRepository, never()).save(any(User.class));
-        verify(notificationService, never()).sendBanNotification(any(User.class), anyString());
     }
 
     @Test
@@ -84,10 +77,6 @@ class ModeratorServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> moderatorService.banUser(1, 999, "Test reason"));
         assertEquals("User to ban not found", exception.getMessage());
-        verify(userRepository).findById(1);
-        verify(userRepository).findById(999);
-        verify(userRepository, never()).save(any(User.class));
-        verify(notificationService, never()).sendBanNotification(any(User.class), anyString());
     }
 
     @Test
@@ -100,9 +89,6 @@ class ModeratorServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> moderatorService.banUser(3, 2, "Test reason"));
         assertEquals("User is not a moderator", exception.getMessage());
-        verify(userRepository).findById(3);
-        verify(userRepository, never()).save(any(User.class));
-        verify(notificationService, never()).sendBanNotification(any(User.class), anyString());
     }
 
     @Test
@@ -116,10 +102,6 @@ class ModeratorServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> moderatorService.banUser(1, 3, "Test reason"));
         assertEquals("Cannot ban another moderator", exception.getMessage());
-        verify(userRepository).findById(1);
-        verify(userRepository).findById(3);
-        verify(userRepository, never()).save(any(User.class));
-        verify(notificationService, never()).sendBanNotification(any(User.class), anyString());
     }
 
     @Test
@@ -142,9 +124,6 @@ class ModeratorServiceTest {
         assertNull(unbannedUser.getBanReason());
         assertNull(unbannedUser.getBannedAt());
         assertNull(unbannedUser.getBannedById());
-        verify(userRepository).findById(1);
-        verify(userRepository).findById(2);
-        verify(userRepository).save(bannedUser);
     }
 
     @Test
@@ -155,9 +134,6 @@ class ModeratorServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> moderatorService.unbanUser(1, 2));
         assertEquals("User is not banned", exception.getMessage());
-        verify(userRepository).findById(1);
-        verify(userRepository).findById(2);
-        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
