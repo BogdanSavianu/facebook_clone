@@ -1,0 +1,270 @@
+<div class="container mt-4">
+  <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="post && !isLoading" class="row">
+    <div class="col-md-8 mx-auto">
+      <!-- Post card -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+          <div class="d-flex align-items-center">
+            <img [src]="'https://ui-avatars.com/api/?name=' + post.authorUsername" class="rounded-circle me-2" alt="User Avatar" width="40" height="40">
+            <div>
+              <h6 class="mb-0">
+                {{ post.authorUsername }}
+                <span *ngIf="post.authorUserScore !== undefined" 
+                      class="small ms-1" 
+                      [ngClass]="post.authorUserScore >= 0 ? 'text-success' : 'text-danger'">
+                  ({{ post.authorUserScore > 0 ? '+' : '' }}{{ post.authorUserScore }})
+                </span>
+              </h6>
+              <small class="text-muted">{{ post.createdAt | date:'medium' }}</small>
+            </div>
+          </div>
+          <span class="badge rounded-pill" [ngClass]="{
+            'bg-success': post.status === postStatus.JUST_POSTED,
+            'bg-warning': post.status === postStatus.FIRST_REACTIONS,
+            'bg-secondary': post.status === postStatus.OUTDATED
+          }">{{ post.status }}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{ post.title }}</h3>
+          <p class="card-text">{{ post.content }}</p>
+          <div *ngIf="post.imageUrl" class="mb-3">
+            <img [src]="postServiceBaseUrl + post.imageUrl" class="img-fluid rounded" alt="Post image">
+          </div>
+          <div *ngIf="post.tags && post.tags.length > 0" class="mb-2">
+            <span *ngFor="let tag of post.tags" class="badge bg-light text-dark me-1 mb-1">{{ tag.name }}</span>
+          </div>
+        </div>
+        <div class="card-footer bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <!-- Like Button -->
+              <button type="button" 
+                      [ngClass]="userPostVotes.get(post.id) === true ? 'btn-primary' : 'btn-outline-primary'"
+                      class="btn btn-sm me-2" 
+                      [disabled]="isPostAuthor || isPostVoteLoading.get(post.id)" 
+                      (click)="likePost($event)">
+                <span *ngIf="isPostVoteLoading.get(post.id)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                <i *ngIf="!isPostVoteLoading.get(post.id)" class="bi bi-hand-thumbs-up me-1"></i> 
+                Like ({{ post.voteCount > 0 ? '+' : '' }}{{ post.voteCount }})
+              </button>
+              
+              <!-- Dislike Button -->
+              <button type="button" 
+                      [ngClass]="userPostVotes.get(post.id) === false ? 'btn-dark' : 'btn-outline-dark'"
+                      class="btn btn-sm me-2"
+                      [disabled]="isPostAuthor || isPostVoteLoading.get(post.id)" 
+                      (click)="dislikePost($event)">
+                <i class="bi bi-hand-thumbs-down me-1"></i> Dislike
+              </button>
+              
+              <!-- Comments button -->
+              <button type="button" class="btn btn-sm btn-outline-dark me-2" (click)="toggleCommentForm()">
+                <i class="bi bi-chat me-1"></i> {{ isCommentFormVisible ? 'Hide Comments' : 'Show Comments' }}
+              </button>
+            </div>
+            
+            <div *ngIf="isPostAuthor || currentUser.roles.includes('ROLE_MODERATOR')">
+              <button class="btn btn-sm btn-outline-warning me-2" 
+                     *ngIf="isPostAuthor && post.status !== postStatus.OUTDATED"
+                     (click)="updatePostStatus(postStatus.OUTDATED)" title="Mark as outdated">
+                <i class="bi bi-lock me-1"></i> Close Discussion
+              </button>
+              <button class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/posts/edit', post.id]">
+                <i class="bi bi-pencil me-1"></i> Edit
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deletePost()">
+                <i class="bi bi-trash me-1"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments section -->
+      <div class="card mb-4">
+        <div class="card-header bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Comments ({{ comments.length }})</h5>
+            <button *ngIf="post.status !== postStatus.OUTDATED" class="btn btn-primary btn-sm" (click)="toggleCommentForm()">
+              {{ isCommentFormVisible ? 'Cancel' : 'Add Comment' }}
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- New comment form -->
+          <div *ngIf="isCommentFormVisible && post.status !== postStatus.OUTDATED" class="mb-4">
+            <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+              <div class="mb-3">
+                <textarea 
+                  formControlName="content" 
+                  class="form-control" 
+                  rows="3" 
+                  placeholder="Write your comment..."
+                  [ngClass]="{ 'is-invalid': commentForm.get('content')?.errors && commentForm.get('content')?.touched }"
+                ></textarea>
+                <div *ngIf="commentForm.get('content')?.errors?.['required'] && commentForm.get('content')?.touched" class="invalid-feedback">
+                  Comment text is required
+                </div>
+                <div *ngIf="commentForm.get('content')?.errors?.['maxlength'] && commentForm.get('content')?.touched" class="invalid-feedback">
+                  Comment must be less than 500 characters
+                </div>
+              </div>
+              <!-- Image URL manual input (can be kept or removed depending on preference) -->
+              <div class="mb-3">
+                <label for="commentImageUrl" class="form-label">Image URL (Optional)</label>
+                <input 
+                  type="text" 
+                  id="commentImageUrl"
+                  formControlName="imageUrl" 
+                  class="form-control form-control-sm"
+                  placeholder="https://example.com/image.jpg or upload below"
+                >
+              </div>
+
+              <!-- New File Upload Section for Comments -->
+              <div class="mb-3">
+                <label for="commentImageUpload" class="form-label">Or Upload Image (Optional)</label>
+                <input 
+                  type="file" 
+                  id="commentImageUpload"
+                  class="form-control form-control-sm" 
+                  (change)="onCommentFileSelected($event)"
+                  accept="image/png, image/jpeg, image/gif"
+                >
+                <div *ngIf="commentUploadProgress > 0 && commentUploadProgress < 100" class="progress mt-2" style="height: 10px;">
+                  <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [style.width.%]="commentUploadProgress" 
+                       aria-valuenow="commentUploadProgress" aria-valuemin="0" aria-valuemax="100">
+                  </div>
+                </div>
+                <div *ngIf="commentFileUploadError" class="alert alert-danger alert-sm mt-2 py-1">
+                  {{ commentFileUploadError }}
+                </div>
+                <img *ngIf="commentPreviewUrl && !commentForm.get('imageUrl')?.value" [src]="commentPreviewUrl" 
+                     class="img-fluid rounded mt-2" style="max-height: 150px;" alt="Comment Image Preview">
+              </div>
+              <!-- End New File Upload Section for Comments -->
+
+              <button type="submit" class="btn btn-primary" [disabled]="commentForm.invalid || isUploadingCommentImage">Submit Comment</button>
+            </form>
+          </div>
+
+          <!-- Main Comments Section -->
+          <div *ngIf="comments.length > 0; else noComments" class="mt-4">
+            <ng-container *ngFor="let comment of comments">
+              <ng-container *ngTemplateOutlet="commentThreadTemplate; context: {$implicit: comment, level: 0}"></ng-container>
+            </ng-container>
+          </div>
+
+          <ng-template #noComments>
+            <p class="text-muted mt-3">No comments yet. Be the first to comment!</p>
+          </ng-template>
+
+          <!-- Recursive Comment Template -->
+          <ng-template #commentThreadTemplate let-comment let-level="level">
+            <div class="comment-thread mb-3 pb-2 border-bottom" [style.margin-left.px]="level * 20">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ comment.authorUsername }}</strong> <small class="text-muted">({{ comment.authorScore?.toFixed(1) }}) - {{ comment.createdAt | date:'short' }}</small>
+                  <span *ngIf="comment.parentId" class="ms-2 text-muted small">(in reply to <a href="#comment-{{comment.parentId}}" (click)="$event.preventDefault(); scrollToComment(comment.parentId)">#{{comment.parentId}}</a>)</span>
+                </div>
+                <div>
+                  <button *ngIf="currentUser && currentUser.id === comment.authorId" class="btn btn-sm btn-outline-secondary me-2" (click)="editComment(comment)">Edit</button>
+                  <button *ngIf="currentUser && (currentUser.id === comment.authorId || currentUser.roles.includes('ROLE_ADMIN'))" class="btn btn-sm btn-outline-danger" (click)="deleteComment(comment.id)">Delete</button>
+                </div>
+              </div>
+              <p class="card-text">{{ comment.content }}</p>
+              <div *ngIf="comment.imageUrl" class="mb-2">
+                <img [src]="commentServiceHostForImages + comment.imageUrl" alt="Comment image" style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 4px;" (click)="openImageModal(commentServiceHostForImages + comment.imageUrl)" class="comment-image-preview">
+              </div>
+
+              <!-- Action Buttons: Like, Dislike, Reply, View Replies -->
+              <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-outline-primary me-1" 
+                        (click)="likeComment(comment.id, $event)" 
+                        [class.active]="userCommentVotes.get(comment.id) === true"
+                        [disabled]="isCommentAuthor(comment) || isCommentVoteLoading.get(comment.id)">
+                  <span *ngIf="isCommentVoteLoading.get(comment.id)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                  <i *ngIf="!isCommentVoteLoading.get(comment.id)" class="fas fa-thumbs-up"></i> 
+                  Like {{ comment.voteCount > 0 ? '(' + comment.voteCount + ')' : '' }}
+                </button>
+                <button class="btn btn-sm btn-outline-secondary me-2" 
+                        (click)="dislikeComment(comment.id, $event)" 
+                        [class.active]="userCommentVotes.get(comment.id) === false"
+                        [disabled]="isCommentAuthor(comment) || isCommentVoteLoading.get(comment.id)">
+                  <span *ngIf="isCommentVoteLoading.get(comment.id)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                  <i *ngIf="!isCommentVoteLoading.get(comment.id)" class="fas fa-thumbs-down"></i> 
+                  Dislike
+                </button>
+                <button class="btn btn-sm btn-link" (click)="toggleReplyForm(comment)">
+                  <i class="fas fa-reply"></i> Reply
+                </button>
+                <!-- Show count only if > 0 -->
+                <span *ngIf="comment.replyCount && comment.replyCount > 0" class="ms-2 text-muted small">({{ comment.replyCount }} {{ comment.replyCount === 1 ? 'reply' : 'replies' }})</span>
+                
+                <!-- Logic for View/Hide/Loading/No replies buttons -->
+                <ng-container *ngIf="comment.replyCount && comment.replyCount > 0">
+                    <button *ngIf="!comment.repliesLoaded && !comment.isLoadingReplies" (click)="loadReplies(comment)" class="btn btn-sm btn-link ms-2">
+                      <i class="fas fa-comments"></i> View {{ comment.replyCount === 1 ? 'Reply' : 'Replies' }}
+                    </button>
+                    <button *ngIf="comment.isLoadingReplies" class="btn btn-sm btn-link ms-2" disabled>
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...
+                    </button>
+                    <button *ngIf="comment.repliesLoaded && comment.replies && comment.replies.length > 0" (click)="comment.replies = undefined; comment.repliesLoaded = false;" class="btn btn-sm btn-link ms-2">
+                        <i class="fas fa-eye-slash"></i> Hide Replies
+                    </button>
+                </ng-container>
+              </div>
+
+              <!-- Reply Form -->
+              <div *ngIf="comment.isReplyFormVisible" class="mt-2 p-2 border rounded bg-light reply-form-container">
+                <form [formGroup]="replyForm" (ngSubmit)="submitReply(comment.id!)">
+                  <div class="mb-2">
+                    <textarea formControlName="content" class="form-control" rows="2" placeholder="Write a reply..."></textarea>
+                    <div *ngIf="replyForm.controls['content'].invalid && (replyForm.controls['content'].dirty || replyForm.controls['content'].touched)"
+                         class="alert alert-danger mt-1 p-1">
+                      <div *ngIf="replyForm.controls['content'].errors?.['required']">Content is required.</div>
+                      <div *ngIf="replyForm.controls['content'].errors?.['maxlength']">Content cannot exceed 500 characters.</div>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="replyImageUpload-{{comment.id}}" class="form-label visually-hidden">Upload Image for Reply</label>
+                    <input type="file" id="replyImageUpload-{{comment.id}}" class="form-control form-control-sm" (change)="onReplyFileSelected($event)" #replyImageInput>
+                    <div *ngIf="isUploadingReplyImage && activeReplyParentComment?.id === comment.id" class="progress mt-2" style="height: 10px;">
+                      <div class="progress-bar" role="progressbar" [style.width.%]="replyUploadProgress" aria-valuenow="replyUploadProgress" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div *ngIf="replyFileUploadError && activeReplyParentComment?.id === comment.id" class="alert alert-danger mt-1 p-1">
+                      {{ replyFileUploadError }}
+                    </div>
+                    <div *ngIf="replyPreviewUrl && activeReplyParentComment?.id === comment.id" class="mt-2">
+                      <img [src]="replyPreviewUrl" alt="Reply image preview" style="max-width: 100px; max-height: 100px; object-fit: cover;">
+                      <button type="button" class="btn btn-sm btn-outline-danger ms-2" (click)="replyForm.controls['imageUrl'].setValue(''); replyPreviewUrl=null; selectedReplyFile=null; replyImageInput.value='';">Remove</button>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-sm" [disabled]="replyForm.invalid || isUploadingReplyImage">Submit Reply</button>
+                  <button type="button" class="btn btn-secondary btn-sm ms-2" (click)="toggleReplyForm(comment)">Cancel</button>
+                </form>
+              </div>
+
+              <!-- Nested Replies Section -->
+              <div *ngIf="comment.replies && comment.replies.length > 0 && comment.repliesLoaded" class="mt-3 nested-replies">
+                <ng-container *ngFor="let reply of comment.replies">
+                  <ng-container *ngTemplateOutlet="commentThreadTemplate; context: {$implicit: reply, level: level + 1}"></ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

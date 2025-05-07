@@ -1,0 +1,130 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">{{ isEditMode ? 'Edit Post' : 'Create New Post' }}</h3>
+        </div>
+        <div class="card-body">
+          <div *ngIf="isLoading" class="d-flex justify-content-center my-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+
+          <form *ngIf="!isLoading" [formGroup]="postForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input 
+                type="text"
+                id="title"
+                formControlName="title"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': postForm.get('title')?.errors && postForm.get('title')?.touched }"
+                placeholder="Post title"
+              >
+              <div *ngIf="postForm.get('title')?.errors?.['required'] && postForm.get('title')?.touched" class="invalid-feedback">
+                Title is required
+              </div>
+              <div *ngIf="postForm.get('title')?.errors?.['maxlength'] && postForm.get('title')?.touched" class="invalid-feedback">
+                Title must be less than 255 characters
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="content" class="form-label">Content</label>
+              <textarea
+                id="content"
+                formControlName="content"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': postForm.get('content')?.errors && postForm.get('content')?.touched }"
+                rows="6"
+                placeholder="Write your post content here..."
+              ></textarea>
+              <div *ngIf="postForm.get('content')?.errors?.['required'] && postForm.get('content')?.touched" class="invalid-feedback">
+                Content is required
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="imageUrl" class="form-label">Image URL (Optional)</label>
+              <input
+                type="text"
+                id="imageUrl"
+                formControlName="imageUrl"
+                class="form-control"
+                placeholder="https://example.com/image.jpg or upload below"
+              >
+            </div>
+
+            <!-- New File Upload Section -->
+            <div class="mb-3">
+              <label for="imageUpload" class="form-label">Or Upload Image (Optional)</label>
+              <input 
+                type="file" 
+                id="imageUpload"
+                class="form-control" 
+                (change)="onFileSelected($event)"
+                accept="image/png, image/jpeg, image/gif"
+              >
+              <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="progress mt-2">
+                <div class="progress-bar" role="progressbar" [style.width.%]="uploadProgress" aria-valuenow="uploadProgress" aria-valuemin="0" aria-valuemax="100">
+                  {{uploadProgress}}%
+                </div>
+              </div>
+              <div *ngIf="fileUploadError" class="alert alert-danger mt-2">
+                {{ fileUploadError }}
+              </div>
+              <img *ngIf="previewUrl && !postForm.get('imageUrl')?.value" [src]="previewUrl" class="img-fluid rounded mt-2" style="max-height: 200px;" alt="Image Preview">
+            </div>
+            <!-- End New File Upload Section -->
+
+            <div class="mb-4">
+              <label class="form-label">Tags</label>
+              <div class="d-flex mb-2">
+                <input
+                  type="text"
+                  class="form-control me-2"
+                  placeholder="Add new tag"
+                  [(ngModel)]="newTag"
+                  [ngModelOptions]="{standalone: true}"
+                >
+                <button type="button" class="btn btn-outline-primary" (click)="addNewTag()">Add</button>
+              </div>
+              
+              <div class="mb-2">
+                <span *ngFor="let tag of selectedTags" class="badge bg-primary me-2 mb-2">
+                  {{ tag }} <i class="bi bi-x-circle ms-1" (click)="toggleTag(tag)" style="cursor: pointer;"></i>
+                </span>
+              </div>
+              
+              <div class="tags-container">
+                <p class="text-muted mb-1">Available tags:</p>
+                <div>
+                  <span *ngFor="let tag of availableTags" 
+                       class="badge me-2 mb-2" 
+                       [ngClass]="selectedTags.includes(tag) ? 'bg-light text-primary border border-primary' : 'bg-light text-dark'"
+                       style="cursor: pointer;"
+                       (click)="toggleTag(tag)">
+                    {{ tag }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" routerLink="/">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="postForm.invalid">
+                {{ isEditMode ? 'Update Post' : 'Create Post' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,85 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Edit Comment</h3>
+        </div>
+        <div class="card-body">
+          <div *ngIf="isLoading" class="d-flex justify-content-center my-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+
+          <form *ngIf="!isLoading" [formGroup]="commentForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="content" class="form-label">Content</label>
+              <textarea
+                id="content"
+                formControlName="content"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': commentForm.get('content')?.errors && commentForm.get('content')?.touched }"
+                rows="4"
+                placeholder="Write your comment here..."
+              ></textarea>
+              <div *ngIf="commentForm.get('content')?.errors?.['required'] && commentForm.get('content')?.touched" class="invalid-feedback">
+                Comment content is required
+              </div>
+              <div *ngIf="commentForm.get('content')?.errors?.['maxlength'] && commentForm.get('content')?.touched" class="invalid-feedback">
+                Comment must be less than 500 characters
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="editCommentImageUrl" class="form-label">Image URL (Optional)</label>
+              <input
+                type="text"
+                id="editCommentImageUrl"
+                formControlName="imageUrl"
+                class="form-control form-control-sm"
+                placeholder="https://example.com/image.jpg or upload below"
+              >
+            </div>
+
+            <!-- New File Upload Section for Editing Comments -->
+            <div class="mb-3">
+              <label for="editCommentImageUpload" class="form-label">Or Upload New Image (Optional)</label>
+              <input 
+                type="file" 
+                id="editCommentImageUpload"
+                class="form-control form-control-sm" 
+                (change)="onFileSelected($event)" 
+                accept="image/png, image/jpeg, image/gif"
+              >
+              <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="progress mt-2" style="height: 10px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" [style.width.%]="uploadProgress" 
+                     aria-valuenow="uploadProgress" aria-valuemin="0" aria-valuemax="100">
+                </div>
+              </div>
+              <div *ngIf="fileUploadError" class="alert alert-danger alert-sm mt-2 py-1">
+                {{ fileUploadError }}
+              </div>
+              <!-- Show existing image if imageUrl is present and no new preview exists -->
+              <img *ngIf="commentForm.get('imageUrl')?.value && !previewUrl" 
+                   [src]="commentServiceHostForImages + commentForm.get('imageUrl')?.value" 
+                   class="img-fluid rounded mt-2" style="max-height: 150px;" alt="Current Comment Image">
+              <img *ngIf="previewUrl" [src]="previewUrl" 
+                   class="img-fluid rounded mt-2" style="max-height: 150px;" alt="New Comment Image Preview">
+            </div>
+            <!-- End New File Upload Section for Editing Comments -->
+
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="commentForm.invalid || isUploadingImage">Update Comment</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

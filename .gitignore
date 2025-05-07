@@ -1,0 +1,14 @@
+frontend/node_modules
+backend/target
+backend/user-service/target
+backend/auth-service/target
+backend/post-service/target
+backend/comment-service/target
+backend/reaction-service/target
+frontend/package-lock.json
+logs/*
+Requirements.txt
+backend/user-service/src/main/resources/application.properties
+.idea
+frontend/.angular
+add_users.sh

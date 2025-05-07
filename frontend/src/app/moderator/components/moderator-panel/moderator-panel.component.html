@@ -1,0 +1,73 @@
+<div class="container mt-4">
+  <h3>Moderator Panel - User Management</h3>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search by username..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+        <button class="btn btn-primary" type="button" (click)="onSearch()">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center my-3">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && users.length === 0 && searchQuery" class="alert alert-info">
+    No users found matching "{{ searchQuery }}".
+  </div>
+
+  <div *ngIf="users.length > 0">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Score</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.userScore }}</td>
+          <td>
+            <span class="badge" [ngClass]="user.banned ? 'bg-danger' : 'bg-success'">
+              {{ user.banned ? 'Banned' : 'Active' }}
+            </span>
+          </td>
+          <td>
+            <button *ngIf="!user.banned" class="btn btn-sm btn-warning me-2" (click)="banUser(user.id)" [disabled]="user.roles.includes('ROLE_ADMIN') || user.roles.includes('ROLE_MODERATOR')">
+              Ban
+            </button>
+            <button *ngIf="user.banned" class="btn btn-sm btn-success me-2" (click)="unbanUser(user.id)">
+              Unban
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="d-flex justify-content-between my-3">
+      <button class="btn btn-outline-primary" [disabled]="currentPage === 0" (click)="previousPage()">
+        Previous
+      </button>
+      <span class="align-self-center">Page {{ currentPage + 1 }} of {{ totalPages }} ({{totalElements}} users)</span>
+      <button class="btn btn-outline-primary" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

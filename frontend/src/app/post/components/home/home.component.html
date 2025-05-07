@@ -1,0 +1,7 @@
+                </button>
+                
+                <!-- Comments button -->
+                <button type="button" class="btn btn-sm btn-outline-dark me-2" [routerLink]="['/posts', post.id]">
+                  <i class="bi bi-chat me-1"></i> Comments {{ post.commentCount !== undefined ? '(' + post.commentCount + ')' : '' }}
+                </button>
+              </div> 

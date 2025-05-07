@@ -1,0 +1,220 @@
+<div class="container">
+  <div class="row">
+    <!-- Left Sidebar -->
+    <div class="col-md-3 d-none d-md-block">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Welcome, {{ currentUser?.username }}</h5>
+          <p class="card-text">Score: {{ currentUser?.userScore }}</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Navigation</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a routerLink="/profile" class="text-decoration-none">My Profile</a></li>
+            <li class="list-group-item"><a routerLink="/posts/my" class="text-decoration-none">My Posts</a></li>
+            <li *ngIf="currentUser && !isModerator" class="list-group-item">
+              <button class="btn btn-info btn-sm w-100" (click)="becomeModerator()">Become Moderator</button>
+            </li>
+            <li *ngIf="currentUser && isModerator" class="list-group-item">
+              <a routerLink="/moderator/panel" class="btn btn-danger btn-sm w-100">Moderator Panel</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-12 col-md-6" style="overflow: visible !important;">
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <img [src]="'https://ui-avatars.com/api/?name=' + currentUser?.username" class="rounded-circle me-2" alt="User Avatar" width="40" height="40">
+            <div class="flex-grow-1">
+              <button class="btn btn-light w-100 text-start" routerLink="/posts/create">What's on your mind, {{ currentUser?.username }}?</button>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <button class="btn btn-light flex-grow-1 me-2">
+              <i class="bi bi-image me-1"></i> Photo
+            </button>
+            <button class="btn btn-light flex-grow-1">
+              <i class="bi bi-tag me-1"></i> Tag
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="card mb-3" style="overflow: visible !important;">
+        <div class="card-body">
+          <h5 class="card-title">Filter Posts</h5>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <!-- Title Search -->
+              <div class="input-group mb-2">
+                <input type="text" class="form-control form-control-sm" placeholder="Search by title..." #titleSearchInput (keyup.enter)="applyTitleSearch(titleSearchInput.value)">
+                <button class="btn btn-outline-secondary btn-sm" type="button" (click)="applyTitleSearch(titleSearchInput.value)">Search</button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <!-- Tag Filter -->
+              <div class="position-relative">
+                <div class="input-group mb-2">
+                  <input type="text" class="form-control form-control-sm" placeholder="Filter by tag..." #tagFilterInput 
+                         id="tagFilterInput" 
+                         (input)="updateTagSuggestions(tagFilterInput)" 
+                         (keyup.enter)="applyTagFilter(tagFilterInput.value)"
+                         (blur)="hideTagSuggestionsWithDelay()" 
+                         autocomplete="off">
+                  <button class="btn btn-outline-secondary btn-sm" type="button" (click)="applyTagFilter(tagFilterInput.value)">Filter</button>
+                </div>
+                <!-- Tag Suggestions Dropdown -->
+                <div *ngIf="showTagSuggestions && suggestedTags.length > 0" class="list-group position-absolute shadow-sm w-100" style="z-index: 1000;"> 
+                  <button type="button" class="list-group-item list-group-item-action py-1" 
+                          *ngFor="let tag of suggestedTags" 
+                          (mousedown)="selectTagSuggestion(tag)">
+                    {{ tag.name }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Author Filter Row -->
+          <div class="row g-2">
+             <div class="col-md-6">
+                <!-- Author Filter -->
+                <div class="position-relative">
+                  <div class="input-group mb-2">
+                    <input type="text" class="form-control form-control-sm" placeholder="Filter by author..." #authorFilterInput 
+                           id="authorFilterInput" 
+                           (input)="updateAuthorSuggestions(authorFilterInput)"
+                           (blur)="hideAuthorSuggestionsWithDelay()"
+                           autocomplete="off">
+                  </div>
+                   <!-- Author Suggestions Dropdown -->
+                  <div *ngIf="showAuthorSuggestions" class="list-group position-absolute shadow-sm w-100" style="z-index: 1050;"> 
+                     <span *ngIf="isSearchingAuthors" class="list-group-item py-1 text-muted">Searching...</span>
+                     <span *ngIf="!isSearchingAuthors && suggestedAuthors.length === 0 && authorSearchQuery.length >= 2" class="list-group-item py-1 text-muted">No authors found.</span>
+                     <button type="button" class="list-group-item list-group-item-action py-1" 
+                             *ngFor="let author of suggestedAuthors" 
+                             (mousedown)="selectAuthorSuggestion(author)">
+                       {{ author.username }}
+                     </button>
+                  </div>
+                </div>
+             </div>
+          </div>
+          <!-- Filter Buttons Row -->
+          <div class="d-flex justify-content-start mt-2">
+            <button class="btn btn-sm me-2" 
+                    [ngClass]="filterMyPosts ? 'btn-success' : 'btn-primary'" 
+                    (click)="showMyPosts()">My Posts</button>
+            <button class="btn btn-secondary btn-sm" 
+                    [disabled]="!filterMyPosts && !filterTagName && !filterTitleSearch && !filterAuthorId"
+                    (click)="showAllPosts()">Clear Filters / All Posts</button>
+          </div>
+          <!-- Active Filters Display -->
+          <div class="mt-2 small text-muted" *ngIf="filterMyPosts || filterTagName || filterTitleSearch || filterAuthorId">
+            <strong>Active filters:</strong>
+            <span *ngIf="filterMyPosts" class="ms-1 badge bg-light text-dark">My Posts</span>
+            <span *ngIf="filterTitleSearch" class="ms-1 badge bg-light text-dark">Title: {{ filterTitleSearch }}</span>
+            <span *ngIf="filterTagName" class="ms-1 badge bg-light text-dark">Tag: {{ filterTagName }}</span>
+            <span *ngIf="filterAuthorId" class="ms-1 badge bg-light text-dark">Author ID: {{ filterAuthorId }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- End Filter Controls -->
+
+      <div *ngIf="isLoading" class="d-flex justify-content-center my-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="posts.length === 0 && !isLoading" class="alert alert-info">
+        No posts available. Be the first to create a post!
+      </div>
+
+      <div *ngFor="let post of posts" class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center bg-white">
+          <div class="d-flex align-items-center">
+            <img [src]="'https://ui-avatars.com/api/?name=' + post.authorUsername" class="rounded-circle me-2" alt="User Avatar" width="32" height="32">
+            <div>
+              <h6 class="mb-0">
+                {{ post.authorUsername }}
+                <span *ngIf="post.authorUserScore !== undefined" 
+                      class="small ms-1" 
+                      [ngClass]="post.authorUserScore >= 0 ? 'text-success' : 'text-danger'">
+                  ({{ post.authorUserScore > 0 ? '+' : '' }}{{ post.authorUserScore }})
+                </span>
+              </h6>
+              <small class="text-muted">{{ post.createdAt | date:'medium' }}</small>
+            </div>
+          </div>
+          <span class="badge rounded-pill" [ngClass]="{
+            'bg-success': post.status === 'JUST_POSTED',
+            'bg-warning': post.status === 'FIRST_REACTIONS',
+            'bg-secondary': post.status === 'OUTDATED'
+          }">{{ post.status }}</span>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">{{ post.title }}</h5>
+          <p class="card-text">{{ post.content }}</p>
+          <div *ngIf="post.imageUrl" class="mb-3">
+            <img [src]="postServiceBaseUrl + post.imageUrl" class="img-fluid rounded" alt="Post image">
+          </div>
+          <div *ngIf="post.tags && post.tags.length > 0" class="mb-2">
+            <span *ngFor="let tag of post.tags" class="badge bg-light text-dark me-1 mb-1">{{ tag.name }}</span>
+          </div>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-between">
+          <div>
+            <button class="btn btn-sm me-2"
+                   [ngClass]="userPostVotes.get(post.id) === true ? 'btn-primary' : 'btn-outline-primary'"
+                   [disabled]="post.authorId === currentUser?.id || isPostVoteLoading.get(post.id)"
+                   (click)="likePost(post, $event)">
+              <span *ngIf="isPostVoteLoading.get(post.id)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              <i *ngIf="!isPostVoteLoading.get(post.id)" class="bi bi-hand-thumbs-up me-1"></i> 
+              Like ({{ post.voteCount > 0 ? '+' : '' }}{{ post.voteCount }})
+            </button>
+            <button class="btn btn-sm me-2"
+                   [ngClass]="userPostVotes.get(post.id) === false ? 'btn-dark' : 'btn-outline-dark'"
+                   [disabled]="post.authorId === currentUser?.id || isPostVoteLoading.get(post.id)"
+                   (click)="dislikePost(post, $event)">
+              <i class="bi bi-hand-thumbs-down me-1"></i> Dislike
+            </button>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" [routerLink]="['/posts', post.id]">
+            <i class="bi bi-chat-left-text me-1"></i> Comments
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="totalPages > 1" class="d-flex justify-content-between my-3">
+        <button class="btn btn-outline-primary" [disabled]="currentPage === 0" (click)="previousPage()">
+          Previous
+        </button>
+        <span class="align-self-center">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+        <button class="btn btn-outline-primary" [disabled]="currentPage === totalPages - 1" (click)="nextPage()">
+          Next
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="col-md-3 d-none d-md-block">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Friends</h5>
+          <p class="card-text text-muted">Friends functionality coming soon!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

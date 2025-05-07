@@ -1,0 +1,16 @@
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: bold;
+}
+
+.nav-link.active {
+  color: #1877f2 !important;
+  font-weight: 500;
+}
+
+.dropdown-item:active {
+  background-color: #1877f2;
+} 

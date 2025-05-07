@@ -1,0 +1,9 @@
+.highlighted-comment {
+  background-color: #fff3cd;
+  border-radius: 0.25rem;
+  padding: 5px;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.reply-form-container {
+} 

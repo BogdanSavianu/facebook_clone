@@ -1,0 +1,27 @@
+.card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.card-header, .card-footer {
+  background-color: #fff;
+  border-color: #ddd;
+}
+
+.badge {
+  font-size: 75%;
+}
+
+.list-group-item {
+  padding: 0.5rem 1rem;
+  
+  a {
+    color: #1877f2;
+    display: block;
+    
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+} 
