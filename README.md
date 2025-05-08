@@ -188,33 +188,3 @@ You can monitor logs using:
 ```bash
 tail -f logs/auth-service.log
 ```
-
-## Troubleshooting
-
-### Database Issues
-
-#### PostgreSQL not running
-- If you have issues with your local PostgreSQL installation:
-  ```bash
-  ./docker-postgres-start.sh
-  ```
-  This will run PostgreSQL in a Docker container instead.
-
-#### Connection errors
-- Check if PostgreSQL is accepting connections:
-  ```bash
-  pg_isready
-  ```
-- For the Docker version:
-  ```bash
-  docker exec facebook_postgres pg_isready
-  ```
-- Verify database connection settings in `application.properties` files
-
-### Service Startup Failures
-- Check logs in the `logs` directory for specific errors
-- Ensure all required ports (8081-8085, 4200) are available
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details. 
