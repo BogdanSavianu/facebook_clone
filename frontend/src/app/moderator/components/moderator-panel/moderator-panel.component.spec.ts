@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { FormsModule } from '@angular/forms'; 
 
 import { ModeratorPanelComponent } from './moderator-panel.component';
+import { UserService } from '../../../shared/services/user.service';
 
 describe('ModeratorPanelComponent', () => {
   let component: ModeratorPanelComponent;
@@ -8,7 +11,12 @@ describe('ModeratorPanelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ModeratorPanelComponent ]
+      declarations: [ ModeratorPanelComponent ],
+      imports: [ 
+        HttpClientTestingModule,
+        FormsModule 
+      ],
+      providers: [ UserService ]
     })
     .compileComponents();
 

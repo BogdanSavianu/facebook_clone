@@ -31,7 +31,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final RequestMatcher permittedPaths = new OrRequestMatcher(
         new AntPathRequestMatcher("/api/posts/public/**"),
-        new AntPathRequestMatcher("/api/posts/upload-image"),
         new AntPathRequestMatcher("/post-images/**"),
         new AntPathRequestMatcher("/api/posts/internal/**")
     );

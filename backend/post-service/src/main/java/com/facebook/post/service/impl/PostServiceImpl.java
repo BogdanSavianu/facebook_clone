@@ -183,10 +183,6 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
         
-        if (!post.getAuthorId().equals(userId)) {
-            throw new RuntimeException("User not authorized to update this post's status");
-        }
-        
         post.setStatus(status);
         Post updatedPost = postRepository.save(post);
         return convertToDTO(updatedPost);

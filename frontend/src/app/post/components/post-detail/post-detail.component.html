@@ -189,18 +189,26 @@
 
               <!-- Action Buttons: Like, Dislike, Reply, View Replies -->
               <div class="d-flex align-items-center">
-                <button class="btn btn-sm btn-outline-primary me-1" 
+                <button class="btn btn-sm me-1" 
+                        [ngClass]="{
+                          'btn-light': currentUser?.id === comment.authorId, 
+                          'btn-primary': currentUser?.id !== comment.authorId && userCommentVotes.get(comment.id) === true,
+                          'btn-outline-primary': currentUser?.id !== comment.authorId && userCommentVotes.get(comment.id) !== true
+                        }"
                         (click)="likeComment(comment.id, $event)" 
-                        [class.active]="userCommentVotes.get(comment.id) === true"
-                        [disabled]="isCommentAuthor(comment) || isCommentVoteLoading.get(comment.id)">
+                        [disabled]="currentUser?.id === comment.authorId || isCommentVoteLoading.get(comment.id)">
                   <span *ngIf="isCommentVoteLoading.get(comment.id)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                   <i *ngIf="!isCommentVoteLoading.get(comment.id)" class="fas fa-thumbs-up"></i> 
                   Like {{ comment.voteCount > 0 ? '(' + comment.voteCount + ')' : '' }}
                 </button>
-                <button class="btn btn-sm btn-outline-secondary me-2" 
+                <button class="btn btn-sm me-2" 
+                        [ngClass]="{
+                          'btn-light': currentUser?.id === comment.authorId, 
+                          'btn-dark': currentUser?.id !== comment.authorId && userCommentVotes.get(comment.id) === false,
+                          'btn-outline-dark': currentUser?.id !== comment.authorId && userCommentVotes.get(comment.id) !== false
+                        }"
                         (click)="dislikeComment(comment.id, $event)" 
-                        [class.active]="userCommentVotes.get(comment.id) === false"
-                        [disabled]="isCommentAuthor(comment) || isCommentVoteLoading.get(comment.id)">
+                        [disabled]="currentUser?.id === comment.authorId || isCommentVoteLoading.get(comment.id)">
                   <span *ngIf="isCommentVoteLoading.get(comment.id)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                   <i *ngIf="!isCommentVoteLoading.get(comment.id)" class="fas fa-thumbs-down"></i> 
                   Dislike

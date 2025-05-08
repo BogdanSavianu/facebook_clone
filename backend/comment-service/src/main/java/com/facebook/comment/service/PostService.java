@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 @Service
 public class PostService {
@@ -23,6 +27,21 @@ public class PostService {
     
     public void updatePostStatus(Long postId, String status) {
         String url = postServiceUrl + "/api/posts/" + postId + "/status?status=" + status;
-        restTemplate.exchange(url, HttpMethod.PUT, null, Void.class);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String token = null;
+
+        if (authentication != null && authentication.getCredentials() instanceof String) {
+            token = (String) authentication.getCredentials();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        if (token != null) {
+             headers.set("Authorization", "Bearer " + token);
+        }
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        restTemplate.exchange(url, HttpMethod.PUT, requestEntity, Void.class);
     }
 } 

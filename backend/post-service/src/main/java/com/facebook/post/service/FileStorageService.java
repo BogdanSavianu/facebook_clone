@@ -8,6 +8,5 @@ public interface FileStorageService {
     String storeFile(MultipartFile file);
     Path loadFile(String filename);
     void deleteFile(String filename);
-    // Potentially add a method to initialize the storage directory
     void init(); 
 } 

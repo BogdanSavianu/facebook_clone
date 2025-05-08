@@ -7,14 +7,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.nio.file.Paths;
 
-// Import SLF4J Logger and LoggerFactory
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebConfig.class); // Added logger
+    private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -24,24 +23,22 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Ensure the path prefix ends with "/" if it doesn't, and the pattern with "/**"
-        String cleanedUploadPathPrefix = uploadPathPrefix.trim(); // Trim the path prefix
-        if (!cleanedUploadPathPrefix.startsWith("/")) { // Ensure it starts with a slash
+        String cleanedUploadPathPrefix = uploadPathPrefix.trim();
+        if (!cleanedUploadPathPrefix.startsWith("/")) {
             cleanedUploadPathPrefix = "/" + cleanedUploadPathPrefix;
         }
-        if (!cleanedUploadPathPrefix.endsWith("/")) { // Ensure it ends with a slash
+        if (!cleanedUploadPathPrefix.endsWith("/")) {
             cleanedUploadPathPrefix = cleanedUploadPathPrefix + "/";
         }
 
-        String publicPath = cleanedUploadPathPrefix; // Use the cleaned prefix
+        String publicPath = cleanedUploadPathPrefix;
         String resourceLocation = "file:" + Paths.get(uploadDir).toAbsolutePath().normalize().toString() + "/";
 
-        logger.info("Configuring resource handler for public path: {} to serve from resource location: {}", publicPath + "**", resourceLocation); // Added log statement
+        logger.info("Configuring resource handler for public path: {} to serve from resource location: {}", publicPath + "**", resourceLocation);
 
         registry.addResourceHandler(publicPath + "**")
                 .addResourceLocations(resourceLocation);
         
-        // Example: if uploadPathPrefix is "/post-images/" and uploadDir is "./uploads/post-images"
-        // This will serve files from ./uploads/post-images/ at http://localhost:8083/post-images/<filename>
+        logger.info("Configuring resource handler for public path: {} to serve from resource location: {}", publicPath + "**", resourceLocation);
     }
 } 
