@@ -23,7 +23,6 @@ export class PostDetailComponent implements OnInit {
   commentForm!: FormGroup;
   replyForm!: FormGroup;
   currentUser: any;
-  isPostAuthor = false;
   isCommentFormVisible = false;
   postServiceBaseUrl: string = environment.postServiceBaseUrl;
   private commentApiUrl = environment.commentApiUrl;
@@ -67,6 +66,10 @@ export class PostDetailComponent implements OnInit {
     } else {
       this.commentServiceHostForImages = this.commentApiUrl;
     }
+  }
+
+  get isPostAuthor(): boolean {
+    return !!this.post && !!this.currentUser && this.post.authorId === this.currentUser.id;
   }
 
   private findCommentById(commentsToSearch: Comment[], id: number): Comment | null {
@@ -133,7 +136,6 @@ export class PostDetailComponent implements OnInit {
     this.postService.getPostById(postId).subscribe(
       post => {
         this.post = post;
-        this.isPostAuthor = post.authorId === this.currentUser?.id;
         this.isLoading = false;
         
         if (this.currentUser && postId) {
